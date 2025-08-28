@@ -18,6 +18,9 @@ pub struct CPU {
     break_command: bool,
     overflow: bool,
     negative: bool,
+
+    // Internal cycle counter
+    cycles: u32,
 }
 
 impl CPU {
@@ -35,30 +38,43 @@ impl CPU {
             break_command: false,
             overflow: false,
             negative: false,
+            cycles: 0,
         }
     }
 
-    fn fetch(&mut self, mem: &Mem, cycles: &mut u32) -> u8 {
+    /// Reset CPU to initial state
+    pub fn reset(&mut self) {
+        *self = Self::new();
+    }
+
+    fn fetch(&mut self, mem: &Mem) -> u8 {
         let data = mem.0[self.pc as usize];
         self.pc += 1;
-        *cycles -= 1;
+        self.cycles += 1;
         data
     }
 
-    pub fn execute(&mut self, mem: &Mem, mut cycles: u32) {
-        while cycles > 0 {
-            let inst = self.fetch(mem, &mut cycles);
+    /// Execute a single instruction
+    pub fn step(&mut self, mem: &Mem) {
+        let inst = self.fetch(mem);
 
-            match Opcode::from(inst) {
-                Opcode::LDA_IM => {
-                    self.reg_a = self.fetch(mem, &mut cycles);
-                    self.zero = self.reg_a == 0;
-                    self.negative = self.reg_a & 0b1000_0000 != 0;
-                }
-                Opcode::INVALID(op) => {
-                    println!("Instruction not handled: {:#X}", op);
-                }
+        match Opcode::from(inst) {
+            Opcode::LDA_IM => {
+                self.reg_a = self.fetch(mem);
+                self.zero = self.reg_a == 0;
+                self.negative = self.reg_a & 0b1000_0000 != 0;
             }
+            Opcode::INVALID(op) => {
+                println!("Instruction not handled: {:#X}", op);
+            }
+        }
+    }
+
+    /// Execute instructions for the specified number of cycles
+    pub fn execute(&mut self, mem: &Mem, target_cycles: u32) {
+        let start_cycles = self.cycles;
+        while self.cycles - start_cycles < target_cycles {
+            self.step(mem);
         }
     }
 }
