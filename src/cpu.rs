@@ -1,6 +1,11 @@
 use crate::mem::Mem;
 use crate::opcode::Opcode;
 
+// 6502 Interrupt Vectors
+pub const RESET_VECTOR: u16 = 0xFFFC;
+pub const IRQ_VECTOR: u16 = 0xFFFE;
+pub const NMI_VECTOR: u16 = 0xFFFA;
+
 #[derive(Debug)]
 pub struct CPU {
     pc: u16, // Program counter
@@ -26,7 +31,7 @@ pub struct CPU {
 impl CPU {
     pub fn new() -> Self {
         Self {
-            pc: 0xFFFC,
+            pc: RESET_VECTOR,
             sp: 0x0100,
             reg_a: 0,
             reg_x: 0,

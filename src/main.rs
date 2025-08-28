@@ -10,6 +10,7 @@ mod mem;
 mod opcode;
 
 use cpu::CPU;
+use cpu::RESET_VECTOR;
 use mem::Mem;
 use opcode::Opcode;
 
@@ -17,8 +18,10 @@ fn main() {
     let mut mem = Mem::new();
     let mut cpu = CPU::new();
 
-    mem.0[0xFFFC] = Opcode::LDA_IM.into();
-    mem.0[0xFFFD] = 0x42;
+    let program = [Opcode::LDA_IM.into(), 0x42];
+    for (offset, &value) in program.iter().enumerate() {
+        mem.write_offset(RESET_VECTOR, offset as u16, value);
+    }
 
     cpu.execute(&mem, 2);
 
