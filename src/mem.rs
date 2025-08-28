@@ -1,6 +1,4 @@
-pub struct Mem(
-    pub [u8; 64 * 1024]
-);
+pub struct Mem(pub [u8; 64 * 1024]);
 
 impl Mem {
     pub fn new() -> Self {

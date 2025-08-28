@@ -1,7 +1,6 @@
 use crate::mem::Mem;
 use crate::opcode::Opcode;
 
-
 #[derive(Debug)]
 pub struct CPU {
     pc: u16, // Program counter
@@ -56,11 +55,10 @@ impl CPU {
                     self.zero = self.reg_a == 0;
                     self.negative = self.reg_a & 0b1000_0000 != 0;
                 }
-                _ => {
-                    println!("Instruction not handled: {:#X}", inst);
+                Opcode::INVALID(op) => {
+                    println!("Instruction not handled: {:#X}", op);
                 }
             }
         }
     }
 }
-
